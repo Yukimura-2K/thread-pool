@@ -208,14 +208,14 @@ public:
      * @param args The arguments to pass to the function.
      */
     template <typename F, typename... A>
-    void push_task(const F& task, const A&... args)
+    void push_task(const F& task, const A&... args) //A&&... args
     {
         {
             const std::scoped_lock tasks_lock(tasks_mutex);
             if constexpr (sizeof...(args) == 0)
                 tasks.push(std::function<void()>(task));
             else
-                tasks.push(std::function<void()>([task, args...] { task(args...); }));
+                tasks.push(std::function<void()>([task, args...] { task(args...); }));//task(std::forward<A>(args)...);
         }
         ++tasks_total;
         task_available_cv.notify_one();
